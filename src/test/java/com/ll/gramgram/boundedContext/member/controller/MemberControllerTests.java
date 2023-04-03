@@ -11,9 +11,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,5 +38,25 @@ public class MemberControllerTests {
                 .andExpect(handler().handlerType(MemberController.class))
                 .andExpect(handler().methodName("showJoin"))
                 .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @DisplayName("회원가입")
+    void t002() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/member/join")
+                        .with(csrf())
+                        .param("username", "user10")
+                        .param("password", "1234")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(status().is3xxRedirection());
+
     }
 }
